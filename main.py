@@ -27,10 +27,13 @@ app.setFont(20)
 url = "https://8b20e2c2.ngrok.io/api/"
 filename = "token.txt"
 guid = getGUID()
+interval = 15 * 60
 
 if os.path.exists(filename) == True:
     file = open(filename, "r")
     content = file.read()
+
+    #zasijsit připojení (tzv. pokud už rasp bylo připojeno, připojíš ho, asi se připojí automaticky)
 
     ping = requests.get(url + "ping")
     if(ping.status_code == 200):
@@ -104,10 +107,13 @@ def connect(btn):
     else:
         app.showSubWindow("connection-error")
 
+        #ukázat app běží (49 - 52 řádek)
+
 def connectToWiFi(btn):
     ssid = app.getOptionBox("ssids")
     password = app.getEntry("password") 
 
+    #uložit do raspberry
     cmd = "add_network"
     os.system(cmd)
 

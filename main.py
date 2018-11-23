@@ -3,6 +3,7 @@ import requests
 import json
 import os.path
 import sys
+from wifi import Cell, Scheme
 
 def getGUID():
     guid = "0000000000000000"
@@ -52,9 +53,28 @@ if os.path.exists(filename) == True:
 def close(btn):
     app.hideAllSubWindows(useStopFunction=False)
 
-def connectToWiFi(btn):
-    x = 15
-    y = x + 2
+def seeWiFi(btn):
+    cmd = "sudo rfkill unblock wifi"
+    os.system(cmd)
+
+    cmd = "sudo ifconfig wlan0 up"
+    os.system(cmd)
+
+    wlans = Cell.all("wlan0")
+    ssids = []
+
+    for cell in wlans:
+        if(cell.ssid != ""):
+            ssids.append(cell.ssid)
+
+    # ssids = [cell.ssid for cell in Cell.all('wlan0')]
+
+    if(len(ssids) != 0):
+        app.clearOptionBox("ssids")
+        app.changeOptionBox("ssids", ssids, 0)
+
+    app.showSubWindow("Wifi-connect")
+
 
 def seeGUID(btn):
     if(guid == "ERORR"):
@@ -73,7 +93,6 @@ def connect(btn):
         if(token.status_code == 404):
             app.setLabel("connection-error-not-registered-label2", data["registration"])
             app.showSubWindow("connection-error-not-registered")
-
         else:
             token = {"token" : data["token"]}
 
@@ -84,6 +103,13 @@ def connect(btn):
             # zavolat járu
     else:
         app.showSubWindow("connection-error")
+
+def connectToWiFi(btn):
+    ssid = app.getOptionBox("ssids")
+    password = app.getEntry("password") 
+
+    cmd = "add_network"
+    os.system(cmd)
 
 app.startSubWindow("connection-error", title=" ", modal=True)
 app.setSize(600, 250)
@@ -116,7 +142,19 @@ app.addNamedButton("OK", "ok-4", close)
 app.setButtonSticky("ok-4", "right")     
 app.stopSubWindow()
 
-app.addImageButton("clickme", connectToWiFi, "signal.png", 0, 0)
+app.startSubWindow("Wifi-connect", title=" ", modal=True)
+app.setSize(600, 250)
+app.addLabel("avaible-ssids", "Dostupné sítě", 0, 0, 1)
+app.addLabelOptionBox("ssids", "", 1, 0, 1)
+app.addLabel("password-label", "Heslo", 0, 1, 1)
+app.addEntry("password", 1, 1, 1)   
+app.addNamedButton("Připojit", "ok-5", connectToWiFi, 2, 1, 1)
+app.setButtonSticky("ok-5", "right")
+app.addNamedButton("Zrušit", "ok-6", close, 2, 1, 1)
+app.setButtonSticky("ok-6", "middle")  
+app.stopSubWindow()
+
+app.addImageButton("clickme", seeWiFi, "signal.png", 0, 0)
 app.addButton("GUID", seeGUID, 0, 1)
 app.addButton("připojit", connect, 0, 2)
 

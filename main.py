@@ -1,13 +1,8 @@
 from appJar import gui
 import requests
 import json
-
-url = "https://8b20e2c2.ngrok.io/api/"
-
-app=gui("Wifiπ", "fullscreen")
-app.setSticky("news")
-app.setExpand("both")
-app.setFont(20)
+import os.path
+import sys
 
 def getGUID():
     guid = "0000000000000000"
@@ -23,6 +18,37 @@ def getGUID():
 
     return guid
 
+app=gui("Wifiπ", "fullscreen")
+app.setSticky("news")
+app.setExpand("both")
+app.setFont(20)
+
+url = "https://8b20e2c2.ngrok.io/api/"
+filename = "token.txt"
+guid = getGUID()
+
+if os.path.exists(filename) == True:
+    file = open(filename, "r")
+    content = file.read()
+
+    ping = requests.get(url + "ping")
+    if(ping.status_code == 200):
+        payload = { "token" : json.loads(content)["token"], "guid" : guid }
+        isvalid = requests.get(url + "verify-token", params = payload)
+        if(json.loads(isvalid.text)["valid"]):
+            payload = {"guid" : guid }
+            response = requests.post(url + "connect", data = payload)
+            data = json.loads(response.text)
+            token = {"token" : data["token"]}
+            file = open(filename, "w")
+            file.write(json.dumps(token))
+            file.close()
+
+        app.addLabel("running-label", "Aplikace běží")
+        app.go()
+        # zavolat járu
+        sys.exit()
+
 def close(btn):
     app.hideAllSubWindows(useStopFunction=False)
 
@@ -31,8 +57,6 @@ def connectToWiFi(btn):
     y = x + 2
 
 def seeGUID(btn):
-    guid = getGUID()
-
     if(guid == "ERORR"):
         app.showSubWindow("GUID-error")
     else:
@@ -42,7 +66,7 @@ def seeGUID(btn):
 def connect(btn):
     ping = requests.get(url + "ping")
     if(ping.status_code == 200):
-        payload = {"guid" : getGUID }
+        payload = {"guid" : guid }
         token = requests.post(url + "connect", data = payload)
         data = json.loads(token.text)
 
@@ -51,7 +75,13 @@ def connect(btn):
             app.showSubWindow("connection-error-not-registered")
 
         else:
-            token = data["token"]
+            token = {"token" : data["token"]}
+
+            file = open(filename, "w+")
+            file.write(json.dumps(token))
+            file.close()
+
+            # zavolat járu
     else:
         app.showSubWindow("connection-error")
 
@@ -68,7 +98,7 @@ app.setSize(600, 250)
 app.addLabel("connection-error-not-registered-label1", "Nejste zaregistrovaní, registraci provedete zde:")
 app.addLabel("connection-error-not-registered-label2", "")
 app.addNamedButton("OK", "ok-2", close)
-app.setButtonSticky("ok-2", "right")             
+app.setButtonSticky("ok-2", "right")       
 app.stopSubWindow()            
 
 app.startSubWindow("GUID-error", title=" ", modal=True)

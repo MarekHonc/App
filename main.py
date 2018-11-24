@@ -6,6 +6,9 @@ import sys
 from wifi import Cell, Scheme
 import time
 
+def close():
+    app.hideAllSubWindows(useStopFunction=False)
+
 def get_login():
     s = None
     p = None
@@ -58,11 +61,14 @@ def connect():
             s, _ = get_login()
             print(s)
             print(token["token"])
-            
-            #cmd = "python3 collect_data.py " + str(5) + " " + s + " " + token["token"]
+            close()
+            #cmd = "sudo python3 collect_data.py " + str(5) + " " + s + " " + token["token"]
             #os.system(cmd)
+            app.removeAllWidgets()
+            app.addLabel("running-label", "Aplikace běží")
+            app.go()
+            sys.exit()
 
-            # zavolat járu
     else:
         app.showSubWindow("connection-error")
 
@@ -100,12 +106,13 @@ if os.path.exists(filename) == True:
             s, _ = get_login()
             print(s)
             print(token)
-            #cmd = "python3 collect_data.py " + str(5) + " " + s + " " + token
+            #cmd = "sudo python3 collect_data.py " + str(5) + " " + s + " " + token
             #os.system(cmd)
-
-
-def close(btn):
-    app.hideAllSubWindows(useStopFunction=False)
+            app.addLabel("running-label", "Aplikace běží")
+            app.go()
+            sys.exit()
+        else:
+            connect()
 
 def seeWiFi(btn):
     cmd = "sudo rfkill unblock wifi"
@@ -116,7 +123,9 @@ def seeWiFi(btn):
 
     wlans = Cell.all("wlan0")
     ssids = []
-
+    print(list(Cell.all('wlan0')))
+    print(list(Cell.all('wlan0')))
+    print(list(Cell.all('wlan0')))
     for cell in wlans:
         if(cell.ssid != ""):
             ssids.append(cell.ssid)
@@ -146,6 +155,7 @@ def connectToWiFi(btn):
     cmd = "sudo iwconfig wlan0 ssid " +app.getOptionBox("ssids")+ " key " + app.getEntry("password")
     os.system(cmd)
     time.sleep(2)
+    close()
     connect()
 
 app.startSubWindow("connection-error", title=" ", modal=True)
@@ -193,6 +203,6 @@ app.stopSubWindow()
 
 app.addImageButton("clickme", seeWiFi, "signal.png", 0, 0)
 app.addButton("GUID", seeGUID, 0, 1)
-app.addButton("připojit", connect, 0, 2)
+#app.addButton("připojit", connect, 0, 2)
 
 app.go()

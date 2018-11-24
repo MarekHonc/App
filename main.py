@@ -4,7 +4,27 @@ import json
 import os.path
 import sys
 from wifi import Cell, Scheme
+import time
 
+def get_login():
+    s = None
+    p = None
+    try:
+        with open("ssid.txt", "r") as ssid:
+            s = ssid.read()
+        with open("pass.txt", "r") as paswd:
+            p= paswd.read()
+    except:
+        print("no saved login")
+    return s, p
+
+def write_login(s, p):
+    with open("ssid.txt", "w") as ssid:
+        ssid.write(s)
+    with open("pass.txt", "w") as paswd:
+        paswd.write(p)
+
+        
 def getGUID():
     guid = "0000000000000000"
     try:
@@ -26,7 +46,7 @@ def connect():
         payload = {"guid" : getGUID() }
         token = requests.post(url + "connect", data = payload)
         data = json.loads(token.text)
-        print(token)
+        print("connect branch")
         if(token.status_code == 404):
             app.setLabel("connection-error-not-registered-label2", data["registration"])
             app.showSubWindow("connection-error-not-registered")
@@ -35,8 +55,12 @@ def connect():
             file = open(filename, "w+")
             file.write(json.dumps(token))
             file.close()
-            cmd = "python3 collect_data.py " + str(5) + " " + "hackathon" + " " + token["token"]
-            os.system(cmd)
+            s, _ = get_login()
+            print(s)
+            print(token["token"])
+            
+            #cmd = "python3 collect_data.py " + str(5) + " " + s + " " + token["token"]
+            #os.system(cmd)
 
             # zavolat járu
     else:
@@ -68,10 +92,16 @@ if os.path.exists(filename) == True:
         isvalid = requests.get(url + "verify-token", params = payload)
         print(isvalid.text)
         if(json.loads(isvalid.text)["valid"]):
-            print("cool")
+            print("main branch")
+            token = payload["token"]
             payload = {"guid" : guid }
             response = requests.post(url + "connect", data = payload)
             data = json.loads(response.text)
+            s, _ = get_login()
+            print(s)
+            print(token)
+            #cmd = "python3 collect_data.py " + str(5) + " " + s + " " + token
+            #os.system(cmd)
 
 
 def close(btn):
@@ -109,12 +139,14 @@ def seeGUID(btn):
 
 
 def connectToWiFi(btn):
-    ssid = app.getOptionBox("ssids")
-    password = app.getEntry("password") 
-
+    write_login(app.getOptionBox("ssids"), app.getEntry("password"))
+    print(app.getOptionBox("ssids"))
+    print(app.getEntry("password"))
     #uložit do raspberry
-    cmd = "add_network"
+    cmd = "sudo iwconfig wlan0 ssid " +app.getOptionBox("ssids")+ " key " + app.getEntry("password")
     os.system(cmd)
+    time.sleep(2)
+    connect()
 
 app.startSubWindow("connection-error", title=" ", modal=True)
 app.setSize(600, 250)

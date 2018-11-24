@@ -18,6 +18,7 @@ def capture_packets(capture_time, ssid):
         capture.close()
         for i in range(len(capture)):
                 try:
+                        print(capture[i].layers[3].ssid)                                       
                         if str(capture[i].layers[3].ssid) == ssid and (not capture[i].wlan.sa in data.data.addresses):
                                 print("found: " + str(capture[i].wlan.sa))
                                 data.data.addresses.append(capture[i].wlan.sa)
@@ -53,7 +54,7 @@ parser.add_argument("ssid")
 parser.add_argument("token")
 args = parser.parse_args()
 
-url = "https://8b20e2c2.ngrok.io/api/upload/" + getGUID()
+url = "https://e1cc2153.ngrok.io/api/upload/" + getGUID()
 print(args.capture_time)
 print(args.ssid)
 print(args.token)

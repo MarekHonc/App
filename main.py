@@ -60,7 +60,7 @@ def connect():
             close()
             app.removeAllWidgets()
             app.addLabel("running-label", "Aplikace běží")
-            cmd = "sudo python3 collect_data.py " + str(10 * 60) + " " + s + " " + token["token"] + " &"
+            cmd = "sudo python3 collect_data.py " + str(10) + " " + s + " " + token["token"] + " &"
             os.system(cmd)
             print("script running")
             app.go()
@@ -77,7 +77,7 @@ app.setSticky("news")
 app.setExpand("both")
 app.setFont(20)
 
-url = "https://8b20e2c2.ngrok.io/api/"
+url = "https://e1cc2153.ngrok.io/api/"
 filename = "token.txt"
 guid = getGUID()
 
@@ -103,7 +103,7 @@ if os.path.exists(filename) == True:
             print(s)
             print(token)
             app.addLabel("running-label", "Aplikace běží")
-            cmd = "sudo python3 collect_data.py " + str(10 * 60) + " " + s + " " + token
+            cmd = "sudo python3 collect_data.py " + str(10) + " " + s + " " + token
             os.system(cmd)
             print("script running")
             app.go()

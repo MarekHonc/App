@@ -19,6 +19,32 @@ def getGUID():
 
     return guid
 
+def connect():
+    ping = requests.get(url + "ping")
+    print(ping)
+    if(ping.status_code == 200):
+        payload = {"guid" : getGUID() }
+        token = requests.post(url + "connect", data = payload)
+        data = json.loads(token.text)
+        print(token)
+        if(token.status_code == 404):
+            app.setLabel("connection-error-not-registered-label2", data["registration"])
+            app.showSubWindow("connection-error-not-registered")
+        else:
+            token = {"token" : data["token"]}
+            file = open(filename, "w+")
+            file.write(json.dumps(token))
+            file.close()
+            cmd = "python3 collect_data.py " + str(5) + " " + "hackathon" + " " + token["token"]
+            os.system(cmd)
+
+            # zavolat járu
+    else:
+        app.showSubWindow("connection-error")
+
+        #ukázat app běží (49 - 52 řádek)
+
+
 app=gui("Wifiπ", "fullscreen")
 app.setSticky("news")
 app.setExpand("both")
@@ -38,20 +64,15 @@ if os.path.exists(filename) == True:
     ping = requests.get(url + "ping")
     if(ping.status_code == 200):
         payload = { "token" : json.loads(content)["token"], "guid" : guid }
+        print(payload)
         isvalid = requests.get(url + "verify-token", params = payload)
+        print(isvalid.text)
         if(json.loads(isvalid.text)["valid"]):
+            print("cool")
             payload = {"guid" : guid }
             response = requests.post(url + "connect", data = payload)
             data = json.loads(response.text)
-            token = {"token" : data["token"]}
-            file = open(filename, "w")
-            file.write(json.dumps(token))
-            file.close()
 
-        app.addLabel("running-label", "Aplikace běží")
-        app.go()
-        # zavolat járu
-        sys.exit()
 
 def close(btn):
     app.hideAllSubWindows(useStopFunction=False)
@@ -86,28 +107,6 @@ def seeGUID(btn):
         app.setLabel("GUID-success-label", "Vaše GUID: " + guid)
         app.showSubWindow("GUID-success")
 
-def connect(btn):
-    ping = requests.get(url + "ping")
-    if(ping.status_code == 200):
-        payload = {"guid" : guid }
-        token = requests.post(url + "connect", data = payload)
-        data = json.loads(token.text)
-
-        if(token.status_code == 404):
-            app.setLabel("connection-error-not-registered-label2", data["registration"])
-            app.showSubWindow("connection-error-not-registered")
-        else:
-            token = {"token" : data["token"]}
-
-            file = open(filename, "w+")
-            file.write(json.dumps(token))
-            file.close()
-
-            # zavolat járu
-    else:
-        app.showSubWindow("connection-error")
-
-        #ukázat app běží (49 - 52 řádek)
 
 def connectToWiFi(btn):
     ssid = app.getOptionBox("ssids")

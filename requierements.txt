@@ -1,3 +1,4 @@
-sudo pip3 install requests
-sudo pip3 install appjar
-sudo pip3 install wifi
+requests
+appjar
+wifi
+pyshark

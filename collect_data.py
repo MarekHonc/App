@@ -3,6 +3,7 @@ import time
 import requests
 import argparse
 import json
+import os
 
 class Data(object):
         pass
@@ -56,7 +57,8 @@ url = "https://8b20e2c2.ngrok.io/api/upload/" + getGUID()
 print(args.capture_time)
 print(args.ssid)
 print(args.token)
-while(True):
+status = 200
+while(status == 200):
         data = capture_packets(args.capture_time, args.ssid)
         adr = data.data.addresses
         json_adr = {"addresses": adr}
@@ -65,7 +67,9 @@ while(True):
                         "token": args.token}
         json_params = {"token": args.token}
         response = requests.post(url, data=json_payload)
+        status = response.status_code
         print(json_payload)
         print(url)
         print(response)
-        
+os.remove("token.txt")
+os.remove("ssid.txt")

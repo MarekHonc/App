@@ -11,21 +11,16 @@ def close():
 
 def get_login():
     s = None
-    p = None
     try:
         with open("ssid.txt", "r") as ssid:
             s = ssid.read()
-        with open("pass.txt", "r") as paswd:
-            p= paswd.read()
     except:
         print("no saved login")
-    return s, p
+    return s
 
-def write_login(s, p):
+def write_login(s):
     with open("ssid.txt", "w") as ssid:
         ssid.write(s)
-    with open("pass.txt", "w") as paswd:
-        paswd.write(p)
 
         
 def getGUID():
@@ -48,6 +43,7 @@ def connect():
     if(ping.status_code == 200):
         payload = {"guid" : getGUID() }
         token = requests.post(url + "connect", data = payload)
+        print(token)
         data = json.loads(token.text)
         print("connect branch")
         if(token.status_code == 404):
@@ -58,13 +54,13 @@ def connect():
             file = open(filename, "w+")
             file.write(json.dumps(token))
             file.close()
-            s, _ = get_login()
+            s = get_login()
             print(s)
             print(token["token"])
             close()
             app.removeAllWidgets()
             app.addLabel("running-label", "Aplikace běží")
-            cmd = "sudo python3 collect_data.py " + str(5) + " " + s + " " + token["token"] + " &"
+            cmd = "sudo python3 collect_data.py " + str(10 * 60) + " " + s + " " + token["token"] + " &"
             os.system(cmd)
             print("script running")
             app.go()
@@ -84,7 +80,6 @@ app.setFont(20)
 url = "https://8b20e2c2.ngrok.io/api/"
 filename = "token.txt"
 guid = getGUID()
-interval = 15 * 60
 
 if os.path.exists(filename) == True:
     file = open(filename, "r")
@@ -104,11 +99,11 @@ if os.path.exists(filename) == True:
             payload = {"guid" : guid }
             response = requests.post(url + "connect", data = payload)
             data = json.loads(response.text)
-            s, _ = get_login()
+            s = get_login()
             print(s)
             print(token)
             app.addLabel("running-label", "Aplikace běží")
-            cmd = "sudo python3 collect_data.py " + str(5) + " " + s + " " + token
+            cmd = "sudo python3 collect_data.py " + str(10 * 60) + " " + s + " " + token
             os.system(cmd)
             print("script running")
             app.go()
@@ -147,7 +142,7 @@ def seeGUID(btn):
 
 
 def connectToWiFi(btn):
-    write_login(app.getOptionBox("ssids"), app.getEntry("password"))
+    write_login(app.getOptionBox("ssids"))
     print(app.getOptionBox("ssids"))
     print(app.getEntry("password"))
     #uložit do raspberry

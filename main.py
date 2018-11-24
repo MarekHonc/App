@@ -123,11 +123,8 @@ def seeWiFi(btn):
 
     wlans = Cell.all("wlan0")
     ssids = []
-    print(list(Cell.all('wlan0')))
-    print(list(Cell.all('wlan0')))
-    print(list(Cell.all('wlan0')))
     for cell in wlans:
-        if(cell.ssid != ""):
+        if(cell.ssid != "" and not cell.ssid in ssids):
             ssids.append(cell.ssid)
 
     # ssids = [cell.ssid for cell in Cell.all('wlan0')]

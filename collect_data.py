@@ -5,7 +5,7 @@ import argparse
 import json
 
 class Data(object):
-    pass
+        pass
 
 def capture_packets(capture_time, ssid):
         capture = pyshark.LiveCapture(interface='wlan1') # filtrování nefunguje
@@ -31,18 +31,18 @@ def capture_packets(capture_time, ssid):
 
 
 def getGUID():
-    guid = "0000000000000000"
-    try:
-        f = open('/proc/cpuinfo','r')
-        for line in f:
-            if line[0:6]=='Serial':
-                guid = line[10:26]
-        f.close()
-        print(guid)
-    except:
-        guid = "ERORR"
+        guid = "0000000000000000"
+        try:
+                f = open('/proc/cpuinfo','r')
+                for line in f:
+                        if line[0:6]=='Serial':
+                                guid = line[10:26]
+                f.close()
+                print(guid)
+        except:
+                guid = "ERORR"
 
-    return guid
+        return guid
 
 
 #def the_great_loop(capture_time, ssid, token):

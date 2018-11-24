@@ -62,10 +62,11 @@ def connect():
             print(s)
             print(token["token"])
             close()
-            #cmd = "sudo python3 collect_data.py " + str(5) + " " + s + " " + token["token"]
-            #os.system(cmd)
             app.removeAllWidgets()
             app.addLabel("running-label", "Aplikace běží")
+            cmd = "sudo python3 collect_data.py " + str(5) + " " + s + " " + token["token"] + " &"
+            os.system(cmd)
+            print("script running")
             app.go()
             sys.exit()
 
@@ -106,9 +107,10 @@ if os.path.exists(filename) == True:
             s, _ = get_login()
             print(s)
             print(token)
-            #cmd = "sudo python3 collect_data.py " + str(5) + " " + s + " " + token
-            #os.system(cmd)
             app.addLabel("running-label", "Aplikace běží")
+            cmd = "sudo python3 collect_data.py " + str(5) + " " + s + " " + token
+            os.system(cmd)
+            print("script running")
             app.go()
             sys.exit()
         else:
